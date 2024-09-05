@@ -10,6 +10,8 @@ import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -53,7 +55,34 @@ public class WallpaperAdapter extends RecyclerView.Adapter<WallpaperAdapter.View
                 .into(holder.imageView);
 
         // Set click listener
-        holder.imageView.setOnClickListener(v -> setWallpaper(wallpaper.getUrl()));
+        holder.imageView.setOnClickListener(v -> {
+            // Load the animation
+            Animation zoomIn = AnimationUtils.loadAnimation(context, R.anim.zoom_in);
+            Animation zoomOut = AnimationUtils.loadAnimation(context, R.anim.zoom_out);
+
+            // Start zoom-in animation
+            holder.imageView.startAnimation(zoomIn);
+
+            // After the zoom-in animation ends, start the wallpaper setting process
+            zoomIn.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+                    // No-op
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    setWallpaper(wallpaper.getUrl());
+                    // Start zoom-out animation after setting the wallpaper
+                    holder.imageView.startAnimation(zoomOut);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+                    // No-op
+                }
+            });
+        });
     }
 
     @Override
