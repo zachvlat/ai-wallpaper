@@ -20,7 +20,7 @@ Clone the Repository
 
 bash
 
-git clone https://github.com/yourusername/ai-wallpaper.git
+git clone https://github.com/zachvlat/ai-wallpaper.git
 
 Open the Project
 
