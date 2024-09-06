@@ -8,13 +8,11 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
-    
-    # Set up JDK 17 instead of JDK 11
+
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
@@ -24,6 +22,7 @@ jobs:
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-    
+
+    # Continue build even if lint fails
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./gradlew build --continue
