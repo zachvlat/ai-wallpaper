@@ -50,7 +50,7 @@ public class WallpaperAdapter extends RecyclerView.Adapter<WallpaperAdapter.View
         // Load image into ImageView
         Picasso.get()
                 .load(wallpaper.getUrl())
-                .resize(720, 1280) // Resize to portrait dimensions
+                .resize(480, 848) // Resize to portrait dimensions
                 .centerCrop()    // Crop to fit within the dimensions
                 .into(holder.imageView);
 
