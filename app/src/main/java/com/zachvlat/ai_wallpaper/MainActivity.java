@@ -2,22 +2,21 @@ package com.zachvlat.ai_wallpaper;
 
 import android.os.Bundle;
 import android.util.Log;
-
+import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.squareup.picasso.Picasso;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -31,11 +30,24 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 2)); // 2 columns grid
         adapter = new WallpaperAdapter(this, wallpaperList);
         recyclerView.setAdapter(adapter);
 
         fetchWallpapers();
+
+        // Find the FAB and set click listener
+        FloatingActionButton fabShuffle = findViewById(R.id.fabShuffle);
+        fabShuffle.setOnClickListener(v -> {
+            // Shuffle the wallpaper list
+            Collections.shuffle(wallpaperList);
+
+            // Notify the adapter to refresh the RecyclerView
+            adapter.notifyDataSetChanged();
+
+            // Optional: Show a small message to the user
+            Toast.makeText(MainActivity.this, "Wallpapers shuffled!", Toast.LENGTH_SHORT).show();
+        });
     }
 
     private void fetchWallpapers() {

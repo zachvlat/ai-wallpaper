@@ -4,27 +4,19 @@ import android.app.Activity;
 import android.app.WallpaperManager;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.List;
 
 public class WallpaperAdapter extends RecyclerView.Adapter<WallpaperAdapter.ViewHolder> {
@@ -50,8 +42,10 @@ public class WallpaperAdapter extends RecyclerView.Adapter<WallpaperAdapter.View
         // Load image into ImageView
         Picasso.get()
                 .load(wallpaper.getUrl())
-                .resize(480, 848) // Resize to portrait dimensions
-                .centerCrop()    // Crop to fit within the dimensions
+                .resize(640, 360) // Resize to a lower resolution
+                .centerCrop()
+//                .placeholder(R.drawable.placeholder) // Optional: add a placeholder image
+//                .error(R.drawable.error) // Optional: add an error image
                 .into(holder.imageView);
 
         // Set click listener
