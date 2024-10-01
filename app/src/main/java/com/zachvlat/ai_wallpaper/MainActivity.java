@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private void fetchWallpapers() {
         new Thread(() -> {
             try {
-                URL url = new URL("https://gist.githubusercontent.com/zachvlat/4009ec76cbaa9c5134b3831dc91a4414/raw/018bd30b8a95376d7e641c6e16926f1ea811cd16/fullImageUrls.json");
+                URL url = new URL("https://gist.githubusercontent.com/zachvlat/4009ec76cbaa9c5134b3831dc91a4414/raw/9f66011f81ad41964b38b23d95a9ac0bf9b4ff31/fullImageUrls.json");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 StringBuilder stringBuilder = new StringBuilder();
