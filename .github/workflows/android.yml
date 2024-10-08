@@ -23,6 +23,13 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
-    # Skip lint entirely
-    - name: Build with Gradle (skip lint)
-      run: ./gradlew build -x lint
+    # Build the APK
+    - name: Build with Gradle
+      run: ./gradlew assembleRelease
+
+    # Upload the APK as an artifact
+    - name: Upload APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: android-apk
+        path: app/build/outputs/apk/release/app-release.apk
