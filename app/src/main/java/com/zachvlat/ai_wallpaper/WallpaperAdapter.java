@@ -42,7 +42,7 @@ public class WallpaperAdapter extends RecyclerView.Adapter<WallpaperAdapter.View
         // Load image into ImageView
         Picasso.get()
                 .load(wallpaper.getUrl())
-                .resize(460, 270) // Resize to a lower resolution
+                .resize(270, 460) // Resize to a lower resolution
                 .centerCrop()
                 .into(holder.imageView);
 
