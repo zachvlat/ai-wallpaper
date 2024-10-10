@@ -8,7 +8,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- Floating Action Button for shuffle -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabShuffle"
         android:layout_width="wrap_content"

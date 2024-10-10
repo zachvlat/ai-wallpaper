@@ -42,10 +42,8 @@ public class WallpaperAdapter extends RecyclerView.Adapter<WallpaperAdapter.View
         // Load image into ImageView
         Picasso.get()
                 .load(wallpaper.getUrl())
-                .resize(640, 360) // Resize to a lower resolution
+                .resize(460, 270) // Resize to a lower resolution
                 .centerCrop()
-//                .placeholder(R.drawable.placeholder) // Optional: add a placeholder image
-//                .error(R.drawable.error) // Optional: add an error image
                 .into(holder.imageView);
 
         // Set click listener
@@ -67,13 +65,11 @@ public class WallpaperAdapter extends RecyclerView.Adapter<WallpaperAdapter.View
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     setWallpaper(wallpaper.getUrl());
-                    // Start zoom-out animation after setting the wallpaper
                     holder.imageView.startAnimation(zoomOut);
                 }
 
                 @Override
                 public void onAnimationRepeat(Animation animation) {
-                    // No-op
                 }
             });
         });
