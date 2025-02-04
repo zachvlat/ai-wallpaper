@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private void fetchWallpapers() {
         new Thread(() -> {
             try {
-                URL url = new URL("https://zachinvalidation.netlify.app/fullImageUrls.json");
+                URL url = new URL("https://zvcheats.netlify.app/fullImageUrls.json");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 StringBuilder stringBuilder = new StringBuilder();
