@@ -1,6 +1,7 @@
 package com.zachvlat.ai_wallpaper;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.WallpaperManager;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -11,9 +12,13 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.transition.MaterialContainerTransform;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -26,6 +31,61 @@ public class WallpaperAdapter extends RecyclerView.Adapter<WallpaperAdapter.View
     public WallpaperAdapter(Context context, List<Wallpaper> wallpapers) {
         this.context = context;
         this.wallpapers = wallpapers;
+        
+        // Configure Picasso for better performance
+        configurePicasso();
+    }
+    
+    private void configurePicasso() {
+        try {
+            // Enable memory cache and disk cache for better performance
+            Picasso picasso = Picasso.get();
+            picasso.setIndicatorsEnabled(false); // Set to true for debugging cache hits
+            picasso.setLoggingEnabled(false);   // Set to true for debugging
+        } catch (Exception e) {
+            // Picasso already configured
+        }
+    }
+    
+    private Drawable createLoadingDrawable() {
+        // Create a custom loading drawable with gradient and icon
+        return new android.graphics.drawable.Drawable() {
+            @Override
+            public void draw(android.graphics.Canvas canvas) {
+                // Draw gradient background
+                android.graphics.LinearGradient gradient = new android.graphics.LinearGradient(
+                    0, 0, 0, canvas.getHeight(),
+                    new int[]{0xFFE0E0E0, 0xFFB0B0B0},
+                    null, android.graphics.Shader.TileMode.CLAMP
+                );
+                android.graphics.Paint paint = new android.graphics.Paint();
+                paint.setShader(gradient);
+                canvas.drawRect(0, 0, canvas.getWidth(), canvas.getHeight(), paint);
+                
+                // Draw loading icon in center
+                paint.setShader(null);
+                paint.setColor(0xFF666666);
+                paint.setTextSize(48);
+                paint.setTextAlign(android.graphics.Paint.Align.CENTER);
+                canvas.drawText("⏳", canvas.getWidth() / 2, canvas.getHeight() / 2 + 16, paint);
+            }
+            
+            @Override
+            public void setAlpha(int alpha) {}
+            
+            @Override
+            public void setColorFilter(android.graphics.ColorFilter colorFilter) {}
+            
+            @Override
+            public int getOpacity() {
+                return android.graphics.PixelFormat.OPAQUE;
+            }
+        };
+    }
+    
+    private void createLoadingPlaceholder(ImageView imageView) {
+        // Set initial loading state
+        imageView.setImageDrawable(createLoadingDrawable());
     }
 
     @NonNull
@@ -39,39 +99,21 @@ public class WallpaperAdapter extends RecyclerView.Adapter<WallpaperAdapter.View
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Wallpaper wallpaper = wallpapers.get(position);
 
-        // Load image into ImageView
+        // Create a custom loading placeholder
+        createLoadingPlaceholder(holder.imageView);
+        
+        // Load thumbnail image into ImageView for better performance
         Picasso.get()
-                .load(wallpaper.getUrl())
-                .resize(270, 460) // Resize to a lower resolution
+                .load(wallpaper.getThumbnailUrl())
+                .resize(300, 500) // Optimal size for grid thumbnails
                 .centerCrop()
+                .placeholder(createLoadingDrawable())
+                .error(android.R.drawable.ic_menu_report_image)
                 .into(holder.imageView);
 
-        // Set click listener
-        holder.imageView.setOnClickListener(v -> {
-            // Load the animation
-            Animation zoomIn = AnimationUtils.loadAnimation(context, R.anim.zoom_in);
-            Animation zoomOut = AnimationUtils.loadAnimation(context, R.anim.zoom_out);
-
-            // Start zoom-in animation
-            holder.imageView.startAnimation(zoomIn);
-
-            // After the zoom-in animation ends, start the wallpaper setting process
-            zoomIn.setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-                    // No-op
-                }
-
-                @Override
-                public void onAnimationEnd(Animation animation) {
-                    setWallpaper(wallpaper.getUrl());
-                    holder.imageView.startAnimation(zoomOut);
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-                }
-            });
+        // Set click listener to open preview dialog
+        holder.cardView.setOnClickListener(v -> {
+            showWallpaperPreview(wallpaper.getFullResolutionUrl());
         });
     }
 
@@ -90,12 +132,13 @@ public class WallpaperAdapter extends RecyclerView.Adapter<WallpaperAdapter.View
                             WallpaperManager wallpaperManager = WallpaperManager.getInstance(context);
                             wallpaperManager.setBitmap(bitmap);
 
-                            // Show Snackbar
+                            // Show Material 3 Snackbar with better styling
                             View view = ((Activity) context).findViewById(android.R.id.content);
-                            Snackbar.make(view, "Wallpaper set!", Snackbar.LENGTH_LONG)
-                                    .setAction("Undo", v -> {
-                                        // Optional: Add functionality to undo wallpaper change
+                            Snackbar.make(view, "Wallpaper set successfully!", Snackbar.LENGTH_LONG)
+                                    .setAction("View", v -> {
+                                        // Optional: Add functionality to view the wallpaper
                                     })
+                                    .setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE)
                                     .show();
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -119,13 +162,111 @@ public class WallpaperAdapter extends RecyclerView.Adapter<WallpaperAdapter.View
         View view = ((Activity) context).findViewById(android.R.id.content);
         Snackbar.make(view, message, Snackbar.LENGTH_LONG).show();
     }
+    
+    private void showWallpaperPreview(String imageUrl) {
+        // Create dialog with custom theme
+        Dialog dialog = new Dialog(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        dialog.setContentView(R.layout.dialog_wallpaper_preview);
+        
+        // Set window animations
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setWindowAnimations(android.R.style.Animation_Dialog);
+        }
+        
+        // Get views
+        ImageView imagePreview = dialog.findViewById(R.id.imagePreview);
+        ProgressBar progressBar = dialog.findViewById(R.id.progressBar);
+        MaterialButton btnSetWallpaper = dialog.findViewById(R.id.btnSetWallpaper);
+        
+        
+        // Show loading indicator
+        progressBar.setVisibility(View.VISIBLE);
+        
+        // Load full resolution image for preview
+        Picasso.get()
+                .load(imageUrl)
+                .fit()
+                .centerInside()
+                .into(imagePreview, new com.squareup.picasso.Callback() {
+                    @Override
+                    public void onSuccess() {
+                        progressBar.setVisibility(View.GONE);
+// Image loaded successfully
+                    }
+                    
+                    @Override
+                    public void onError(Exception e) {
+                        progressBar.setVisibility(View.GONE);
+                        showSnackbar("Failed to load image");
+                    }
+                });
+        
+        // Set wallpaper button click listener
+        btnSetWallpaper.setOnClickListener(v -> {
+            btnSetWallpaper.setEnabled(false);
+            btnSetWallpaper.setText("Setting...");
+            
+            setWallpaperFromDialog(imageUrl, dialog, btnSetWallpaper);
+        });
+        
+        
+        
+        // Show dialog
+        dialog.show();
+    }
+    
+    private void setWallpaperFromDialog(String imageUrl, Dialog dialog, MaterialButton button) {
+        // Load full resolution image for setting as wallpaper
+        Picasso.get()
+                .load(imageUrl)
+                .into(new Target() {
+                    @Override
+                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                        try {
+                            WallpaperManager wallpaperManager = WallpaperManager.getInstance(context);
+                            wallpaperManager.setBitmap(bitmap);
+                            
+                            // Close dialog
+                            dialog.dismiss();
+                            
+                            // Show success message
+                            View view = ((Activity) context).findViewById(android.R.id.content);
+                            Snackbar.make(view, "Wallpaper set successfully!", Snackbar.LENGTH_LONG)
+                                    .setAction("View", v -> {
+                                        // Optional: Add functionality to view the wallpaper
+                                    })
+                                    .setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE)
+                                    .show();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            button.setEnabled(true);
+                            button.setText("Set as Wallpaper");
+                            showSnackbar("Failed to set wallpaper");
+                        }
+                    }
+                    
+                    @Override
+                    public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+                        button.setEnabled(true);
+                        button.setText("Set as Wallpaper");
+                        showSnackbar("Failed to load image");
+                    }
+                    
+                    @Override
+                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+                        // Loading state handled by button text change
+                    }
+                });
+    }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
+        MaterialCardView cardView;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.imageView);
+            cardView = (MaterialCardView) itemView;
         }
     }
 }

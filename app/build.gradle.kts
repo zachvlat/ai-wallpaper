@@ -4,14 +4,14 @@ plugins {
 
 android {
     namespace = "com.zachvlat.ai_wallpaper"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.zachvlat.ai_wallpaper"
         minSdk = 27
-        targetSdk = 34
-        versionCode = 10
-        versionName = "1.8.5"
+        targetSdk = 35
+        versionCode = 12
+        versionName = "3.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -40,21 +40,30 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    implementation("androidx.core:core-ktx:1.12.0")
+    
+    // Core Android libraries
+    implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.appcompat:appcompat:1.7.0")
-    implementation("com.google.android.material:material:1.9.0")
-    implementation("androidx.recyclerview:recyclerview:1.3.0")
-    implementation("com.squareup.picasso:picasso:2.71828")
+    implementation("androidx.activity:activity:1.9.3")
+    implementation("androidx.constraintlayout:constraintlayout:2.2.0")
+    
+    // Material Design 3
+    implementation("com.google.android.material:material:1.12.0")
+    
+    // RecyclerView
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+    
+    // Image loading
+    implementation("com.squareup.picasso:picasso:2.8")
+    
+    // JSON parsing
+    implementation("com.google.code.gson:gson:2.11.0")
+    
+    // Dynamic color support
+    implementation("androidx.palette:palette-ktx:1.0.0")
+    
+    // Testing
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    implementation("com.google.code.gson:gson:2.10.1")
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.appcompat:appcompat:1.7.0")
-    implementation("com.google.android.material:material:1.9.0")
-    implementation("androidx.recyclerview:recyclerview:1.3.0")
-    implementation("com.squareup.picasso:picasso:2.71828")
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 }

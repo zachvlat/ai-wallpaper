@@ -12,8 +12,13 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Aiwallpaper"
-        tools:targetApi="31">
+        android:theme="@style/Theme.WallpaperApp"
+        tools:targetApi="35">
+        
+        <!-- Add dynamic color support for Android 12+ -->
+        <meta-data
+            android:name="android.app.theme"
+            android:resource="@style/Theme.WallpaperApp" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
