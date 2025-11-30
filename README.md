@@ -9,6 +9,12 @@ Features
     Set as Wallpaper: Click on any image to set it as your device wallpaper.
     Modern UI: Implements the latest Material Design components.
 
+Screenshots
+
+<img width="480" height="854" alt="share_134500934003581909" src="https://github.com/user-attachments/assets/b3ffb411-6fec-43d4-baf3-1ace7fbbaea0" />
+<img width="480" height="854" alt="share_6219972574696423361" src="https://github.com/user-attachments/assets/62ea2abd-7b7f-4931-80ff-857d726ccf51" />
+
+
 
 Installation
 Prerequisites
