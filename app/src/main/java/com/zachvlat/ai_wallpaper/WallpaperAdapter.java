@@ -47,27 +47,31 @@ public class WallpaperAdapter extends RecyclerView.Adapter<WallpaperAdapter.View
         }
     }
     
-    private Drawable createLoadingDrawable() {
-        // Create a custom loading drawable with gradient and icon
+    private Drawable createBlurPlaceholder() {
+        // Create a blur-like placeholder with subtle gradient
         return new android.graphics.drawable.Drawable() {
             @Override
             public void draw(android.graphics.Canvas canvas) {
-                // Draw gradient background
-                android.graphics.LinearGradient gradient = new android.graphics.LinearGradient(
-                    0, 0, 0, canvas.getHeight(),
-                    new int[]{0xFFE0E0E0, 0xFFB0B0B0},
-                    null, android.graphics.Shader.TileMode.CLAMP
+                // Create blur-like gradient background
+                android.graphics.RadialGradient gradient = new android.graphics.RadialGradient(
+                    canvas.getWidth() / 2f, canvas.getHeight() / 2f,
+                    Math.max(canvas.getWidth(), canvas.getHeight()) / 2f,
+                    new int[]{0xFF4A90E2, 0xFF357ABD, 0xFF2968AA},
+                    new float[]{0f, 0.5f, 1f},
+                    android.graphics.Shader.TileMode.CLAMP
                 );
                 android.graphics.Paint paint = new android.graphics.Paint();
                 paint.setShader(gradient);
                 canvas.drawRect(0, 0, canvas.getWidth(), canvas.getHeight(), paint);
                 
-                // Draw loading icon in center
+                // Add subtle noise effect
                 paint.setShader(null);
-                paint.setColor(0xFF666666);
-                paint.setTextSize(48);
-                paint.setTextAlign(android.graphics.Paint.Align.CENTER);
-                canvas.drawText("⏳", canvas.getWidth() / 2, canvas.getHeight() / 2 + 16, paint);
+                paint.setColor(0x22000000);
+                for (int i = 0; i < 50; i++) {
+                    float x = (float) Math.random() * canvas.getWidth();
+                    float y = (float) Math.random() * canvas.getHeight();
+                    canvas.drawPoint(x, y, paint);
+                }
             }
             
             @Override
@@ -84,8 +88,8 @@ public class WallpaperAdapter extends RecyclerView.Adapter<WallpaperAdapter.View
     }
     
     private void createLoadingPlaceholder(ImageView imageView) {
-        // Set initial loading state
-        imageView.setImageDrawable(createLoadingDrawable());
+        // Set initial blur placeholder
+        imageView.setImageDrawable(createBlurPlaceholder());
     }
 
     @NonNull
@@ -99,17 +103,32 @@ public class WallpaperAdapter extends RecyclerView.Adapter<WallpaperAdapter.View
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Wallpaper wallpaper = wallpapers.get(position);
 
-        // Create a custom loading placeholder
+        // Create blur placeholder
         createLoadingPlaceholder(holder.imageView);
         
-        // Load thumbnail image into ImageView for better performance
+        // Load image with blur-to-sharp effect
         Picasso.get()
                 .load(wallpaper.getThumbnailUrl())
                 .resize(300, 500) // Optimal size for grid thumbnails
                 .centerCrop()
-                .placeholder(createLoadingDrawable())
+                .placeholder(createBlurPlaceholder())
                 .error(android.R.drawable.ic_menu_report_image)
-                .into(holder.imageView);
+                .into(holder.imageView, new com.squareup.picasso.Callback() {
+                    @Override
+                    public void onSuccess() {
+                        // Animate from blur to sharp
+                        holder.imageView.setAlpha(0.7f);
+                        holder.imageView.animate()
+                                .alpha(1.0f)
+                                .setDuration(300)
+                                .start();
+                    }
+                    
+                    @Override
+                    public void onError(Exception e) {
+                        // Keep placeholder on error
+                    }
+                });
 
         // Set click listener to open preview dialog
         holder.cardView.setOnClickListener(v -> {
@@ -182,16 +201,25 @@ public class WallpaperAdapter extends RecyclerView.Adapter<WallpaperAdapter.View
         // Show loading indicator
         progressBar.setVisibility(View.VISIBLE);
         
-        // Load full resolution image for preview
+        // Set blur placeholder for preview
+        imagePreview.setImageDrawable(createBlurPlaceholder());
+        
+        // Load full resolution image with blur-to-sharp effect
         Picasso.get()
                 .load(imageUrl)
                 .fit()
                 .centerInside()
+                .placeholder(createBlurPlaceholder())
                 .into(imagePreview, new com.squareup.picasso.Callback() {
                     @Override
                     public void onSuccess() {
                         progressBar.setVisibility(View.GONE);
-// Image loaded successfully
+                        // Animate from blur to sharp for preview
+                        imagePreview.setAlpha(0.8f);
+                        imagePreview.animate()
+                                .alpha(1.0f)
+                                .setDuration(400)
+                                .start();
                     }
                     
                     @Override
