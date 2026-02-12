@@ -10,8 +10,8 @@ android {
         applicationId = "com.zachvlat.ai_wallpaper"
         minSdk = 27
         targetSdk = 35
-        versionCode = 12
-        versionName = "3.0.0"
+        versionCode = 13
+        versionName = "3.6.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
