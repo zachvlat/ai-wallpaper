@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
     private void fetchWallpapers() {
         new Thread(() -> {
             try {
-                URL url = new URL("https://various-files.vercel.app/fullImageUrls.json");
+                URL url = new URL("https://various-files.vercel.app/wallpapers.json");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 StringBuilder stringBuilder = new StringBuilder();
@@ -101,15 +101,13 @@ public class MainActivity extends AppCompatActivity {
                 reader.close();
                 connection.disconnect();
 
-                // Parse the JSON array
-                Type listType = new TypeToken<List<String>>() {}.getType();
-                List<String> urls = new Gson().fromJson(stringBuilder.toString(), listType);
+                // Parse the JSON array of wallpaper objects
+                Type listType = new TypeToken<List<Wallpaper>>() {}.getType();
+                List<Wallpaper> wallpapers = new Gson().fromJson(stringBuilder.toString(), listType);
 
-                // Convert to Wallpaper objects
+                // Update the wallpaper list
                 wallpaperList.clear();
-                for (String urlStr : urls) {
-                    wallpaperList.add(new Wallpaper(urlStr));
-                }
+                wallpaperList.addAll(wallpapers);
 
                 runOnUiThread(() -> adapter.notifyDataSetChanged());
 

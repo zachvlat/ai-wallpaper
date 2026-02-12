@@ -1,44 +1,49 @@
 package com.zachvlat.ai_wallpaper;
 
-public class Wallpaper {
-    private String url;
-    private String thumbnailUrl;
-    private String fullResolutionUrl;
+import java.util.List;
 
-    public Wallpaper(String url) {
-        this.url = url;
-        this.thumbnailUrl = generateThumbnailUrl(url);
-        this.fullResolutionUrl = url; // Original URL is full resolution
+public class Wallpaper {
+    private String title;
+    private List<String> tags;
+    private String thumbnail_url;
+    private String original_url;
+    private String detail_page;
+    private int engagement_count;
+    private String slug;
+    private String content_id;
+
+    // Default constructor for Gson
+    public Wallpaper() {}
+
+    public String getTitle() {
+        return title;
     }
 
-    public String getUrl() {
-        return url;
+    public List<String> getTags() {
+        return tags;
     }
 
     public String getThumbnailUrl() {
-        return thumbnailUrl;
+        return thumbnail_url;
     }
 
     public String getFullResolutionUrl() {
-        return fullResolutionUrl;
+        return original_url;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
-        this.thumbnailUrl = generateThumbnailUrl(url);
-        this.fullResolutionUrl = url;
+    public String getDetail_page() {
+        return detail_page;
     }
 
-    /**
-     * Generate thumbnail URL by adding size parameters
-     * For cdn.dreampix.ai, we can add width/height parameters
-     */
-    private String generateThumbnailUrl(String originalUrl) {
-        if (originalUrl.contains("cdn.dreampix.ai")) {
-            // Add size parameters for thumbnail (300x500 for good grid performance)
-            return originalUrl + "?w=300&h=500&fit=crop&auto=format";
-        }
-        // For other URLs, return original
-        return originalUrl;
+    public int getEngagement_count() {
+        return engagement_count;
+    }
+
+    public String getSlug() {
+        return slug;
+    }
+
+    public String getContent_id() {
+        return content_id;
     }
 }
