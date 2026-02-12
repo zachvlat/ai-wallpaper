@@ -4,16 +4,22 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.WindowCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.color.DynamicColors;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -27,11 +33,15 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private WallpaperAdapter adapter;
     private List<Wallpaper> wallpaperList = new ArrayList<>();
+    private List<Wallpaper> filteredWallpaperList = new ArrayList<>();
+    private EditText searchEditText;
+    private ImageView clearSearchButton;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -50,18 +60,26 @@ public class MainActivity extends AppCompatActivity {
         // Set up system UI visibility for edge-to-edge
         setupEdgeToEdge();
 
+        // Set up search functionality
+        searchEditText = findViewById(R.id.searchEditText);
+        clearSearchButton = findViewById(R.id.clearSearch);
+        
+        // Configure RecyclerView
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2)); // 2 columns grid
-        adapter = new WallpaperAdapter(this, wallpaperList);
+        adapter = new WallpaperAdapter(this, filteredWallpaperList);
         recyclerView.setAdapter(adapter);
+        
+        // Set up search functionality
+        setupSearch();
 
         fetchWallpapers();
 
         // Find the FAB and set click listener
         ExtendedFloatingActionButton fabShuffle = findViewById(R.id.fabShuffle);
         fabShuffle.setOnClickListener(v -> {
-            // Shuffle the wallpaper list
-            Collections.shuffle(wallpaperList);
+            // Shuffle the currently displayed (filtered) list
+            Collections.shuffle(filteredWallpaperList);
 
             // Notify the adapter to refresh the RecyclerView
             adapter.notifyDataSetChanged();
@@ -108,12 +126,61 @@ public class MainActivity extends AppCompatActivity {
                 // Update the wallpaper list
                 wallpaperList.clear();
                 wallpaperList.addAll(wallpapers);
-
-                runOnUiThread(() -> adapter.notifyDataSetChanged());
+                
+                // Apply current filter to the new data
+                runOnUiThread(() -> {
+                    applySearchFilter(searchEditText.getText().toString());
+                    adapter.notifyDataSetChanged();
+                });
 
             } catch (Exception e) {
                 Log.e("MainActivity", "Error fetching wallpapers", e);
             }
         }).start();
+    }
+    
+    private void setupSearch() {
+        searchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String query = s.toString().trim();
+                clearSearchButton.setVisibility(query.isEmpty() ? View.GONE : View.VISIBLE);
+                applySearchFilter(query);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+        
+        clearSearchButton.setOnClickListener(v -> {
+            searchEditText.setText("");
+            searchEditText.clearFocus();
+        });
+    }
+    
+    private void applySearchFilter(String query) {
+        if (query.isEmpty()) {
+            filteredWallpaperList.clear();
+            filteredWallpaperList.addAll(wallpaperList);
+        } else {
+            String lowercaseQuery = query.toLowerCase();
+            filteredWallpaperList.clear();
+            
+            for (Wallpaper wallpaper : wallpaperList) {
+                if (wallpaper.getTags() != null) {
+                    for (String tag : wallpaper.getTags()) {
+                        if (tag.toLowerCase().contains(lowercaseQuery)) {
+                            filteredWallpaperList.add(wallpaper);
+                            break; // Found matching tag, no need to check others
+                        }
+                    }
+                }
+            }
+        }
+        
+        adapter.notifyDataSetChanged();
     }
 }
